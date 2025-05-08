@@ -16,56 +16,49 @@ class BaseModelWithUID(models.Model):
 
 
 class Country(BaseModelWithUID):
-    name_common = models.CharField(max_length=255)
+    name_common = models.CharField(max_length=100)
     name_official = models.CharField(max_length=255)
+    tld = models.JSONField(default=list, blank=True, null=True)
     cca2 = models.CharField(max_length=2, blank=True, null=True)
     ccn3 = models.CharField(max_length=3, blank=True, null=True)
     cioc = models.CharField(max_length=3, blank=True, null=True)
-    capital = models.JSONField(default=list, blank=True, null=True)
-    population = models.BigIntegerField(default=0)
-    area = models.FloatField(null=True, blank=True)
     independent = models.BooleanField(default=False)
-    status = models.CharField(max_length=255)
+    status = models.CharField(max_length=100)
     un_member = models.BooleanField(default=False)
-    region = models.CharField(max_length=100, blank=True, null=True)
-    subregion = models.CharField(max_length=100, blank=True, null=True)
-    landlocked = models.BooleanField(default=False)
-    fifa = models.CharField(max_length=3, blank=True, null=True)
-    cca3 = models.CharField(max_length=3, blank=True, null=True)
-    flag = models.CharField(max_length=3, blank=True, null=True)
-    start_of_week = models.CharField(max_length=10, blank=True, null=True)
-    continents = models.JSONField(default=list, blank=True, null=True)
+    idd_root = models.CharField(max_length=5, blank=True, null=True)
+    idd_suffixes = models.JSONField(default=list, blank=True, null=True)
+    capital = models.JSONField(default=list, blank=True, null=True)
     alt_spellings = models.JSONField(default=list, blank=True, null=True)
+    region = models.CharField(max_length=50, blank=True, null=True)
+    subregion = models.CharField(max_length=100, blank=True, null=True)
+    # Approximate center of the country
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+    landlocked = models.BooleanField(default=False)
     borders = models.JSONField(default=list, blank=True, null=True)
-
+    area = models.BigIntegerField(default=0)
+    cca3 = models.CharField(max_length=3, blank=True, null=True)
+    flag = models.CharField(max_length=100, blank=True, null=True)
+    # Maps
+    google_maps = models.URLField(blank=True, null=True)
+    openstreetmaps = models.URLField(blank=True, null=True)
+    population = models.BigIntegerField(default=0)
+    gini = models.JSONField(default=dict, blank=True, null=True)
+    fifa = models.CharField(max_length=3, blank=True, null=True)
+    car_signs = models.JSONField(default=list, blank=True, null=True)
+    car_side = models.CharField(max_length=5, blank=True, null=True)
+    timezones = models.JSONField(default=list, blank=True, null=True)
+    continents = models.JSONField(default=list, blank=True, null=True)
     # Flags and symbols
     flag_png = models.URLField(blank=True, null=True)
     flag_svg = models.URLField(blank=True, null=True)
     flag_alt = models.TextField(blank=True, null=True)
     coat_of_arms_png = models.URLField(blank=True, null=True)
     coat_of_arms_svg = models.URLField(blank=True, null=True)
-
-    # Maps
-    google_maps = models.URLField(blank=True, null=True)
-    openstreetmaps = models.URLField(blank=True, null=True)
-
+    start_of_week = models.CharField(max_length=10, blank=True, null=True)
+    capital_latlng = models.JSONField(default=list, blank=True, null=True)
     postal_code_format = models.CharField(max_length=100, blank=True, null=True)
     postal_code_regex = models.CharField(max_length=255, blank=True, null=True)
-    idd_root = models.CharField(max_length=5, blank=True, null=True)
-    idd_suffixes = models.JSONField(default=list, blank=True, null=True)
-    timezones = models.JSONField(default=list, blank=True, null=True)
-    car_signs = models.JSONField(default=list, blank=True, null=True)
-    car_side = models.CharField(max_length=5, blank=True, null=True)
-    gini = models.JSONField(default=dict, blank=True, null=True)
-    tld = models.JSONField(default=list, blank=True, null=True)
-
-    # Approximate center of the country
-    latitude = models.FloatField(null=True, blank=True)
-    longitude = models.FloatField(null=True, blank=True)
-
-    # Capital city coordinates
-    capital_latitude = models.FloatField(null=True, blank=True)
-    capital_longitude = models.FloatField(null=True, blank=True)
 
     def __str__(self):
         return self.name_common
