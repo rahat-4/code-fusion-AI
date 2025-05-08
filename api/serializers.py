@@ -1,3 +1,5 @@
+from django.db import transaction
+
 from rest_framework import serializers
 
 from apps.countries.models import (
@@ -49,7 +51,7 @@ class CountryTranslationSerializer(serializers.ModelSerializer):
         fields = ["language_code", "official_name", "common_name"]
 
 
-class CountrySerializer(serializers.ModelSerializer):
+class CountryReadSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
     currencies = serializers.SerializerMethodField()
     idd = serializers.SerializerMethodField()
@@ -187,3 +189,90 @@ class CountrySerializer(serializers.ModelSerializer):
         car["signs"] = obj.car_signs
         car["side"] = obj.car_side
         return car
+
+
+class CountryWriteSerializer(serializers.ModelSerializer):
+    native_name = NativeNameSerializer(many=True, required=False)
+    currencies = CurrencySerializer(many=True, required=False)
+    languages = LanguageSerializer(many=True, required=False, write_only=True)
+    demonyms = DemonymSerializer(many=True, required=False)
+    translations = CountryTranslationSerializer(many=True, required=False)
+
+    class Meta:
+        model = Country
+        fields = [
+            "uid",
+            "name_common",
+            "name_official",
+            "native_name",
+            "tld",
+            "cca2",
+            "ccn3",
+            "cioc",
+            "independent",
+            "status",
+            "un_member",
+            "currencies",
+            "idd_root",
+            "idd_suffixes",
+            "capital",
+            "alt_spellings",
+            "region",
+            "subregion",
+            "languages",
+            "latitude",
+            "longitude",
+            "landlocked",
+            "borders",
+            "area",
+            "demonyms",
+            "cca3",
+            "translations",
+            "flag",
+            "google_maps",
+            "openstreetmaps",
+            "population",
+            "gini",
+            "fifa",
+            "car_signs",
+            "car_side",
+            "timezones",
+            "continents",
+            "flag_png",
+            "flag_svg",
+            "flag_alt",
+            "coat_of_arms_png",
+            "coat_of_arms_svg",
+            "start_of_week",
+            "capital_latlng",
+            "postal_code_format",
+            "postal_code_regex",
+        ]
+
+    def create(self, validated_data):
+        with transaction.atomic():
+            native_name_data = validated_data.pop("native_name", [])
+            currencies_data = validated_data.pop("currencies", [])
+            languages_data = validated_data.pop("languages", [])
+            demonyms_data = validated_data.pop("demonyms", [])
+            translations_data = validated_data.pop("translations", [])
+
+            country = Country.objects.create(**validated_data)
+
+            for native_name in native_name_data:
+                NativeName.objects.create(country=country, **native_name)
+
+            for currency in currencies_data:
+                Currency.objects.create(country=country, **currency)
+
+            for language in languages_data:
+                language, _ = Language.objects.get_or_create(**language)
+                CountryLanguage.objects.create(country=country, language=language)
+
+            for demonym in demonyms_data:
+                Demonym.objects.create(country=country, **demonym)
+
+            for translation in translations_data:
+                CountryTranslation.objects.create(country=country, **translation)
+
+            return country

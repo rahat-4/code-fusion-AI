@@ -113,8 +113,8 @@ class Currency(BaseModelWithUID):
 
 
 class Language(BaseModelWithUID):
-    name = models.CharField(max_length=255, unique=True)
-    code = models.CharField(max_length=10, unique=True)
+    name = models.CharField(max_length=255)
+    code = models.CharField(max_length=10)
 
     def __str__(self):
         return self.name
